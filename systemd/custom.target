@@ -1,0 +1,9 @@
+# Adds a runlevel after everything else inits
+# see https://www.mauras.ch/systemd-run-it-last.html
+
+[Unit]
+Description=Run last target
+Requires=multi-user.target
+After=multi-user.target
+AllowIsolate=yes
+

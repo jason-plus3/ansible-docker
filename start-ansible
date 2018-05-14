@@ -1,0 +1,28 @@
+#!/bin/sh 
+
+PLAYBOOK_DIR=${PLAYBOOK_DIR:-/ansible}
+
+# Import our environment variables from systemd
+# Because systemd doesn't think services need to know environment variables from outside of it's control
+for e in $(tr "\000" "\n" < /proc/1/environ); do
+        eval "export $e"
+done
+
+
+if [ -z ${PLAYBOOK+x} ] ; then
+    PLAYBOOK="${PLAYBOOK_DIR}/*playbook.yml"
+fi
+
+if [ -z ${VAULT+x} ] ; then
+    for i in /ansible/*.vault ; do
+        VAULT_NAME=$(basename -s .vault $i)
+        VAULT_ARG="${VAULT_ARG} --vault-id ${VAULT_NAME}@$i"
+    done
+else
+    VAULT_ARG="--vault-id ${VAULT}"
+fi
+
+cd /ansible
+echo "Running ansible-playbook $VAULT_ARG $PLAYBOOK"
+ansible-playbook $VAULT_ARG $PLAYBOOK
+

@@ -1,0 +1,15 @@
+[Unit]
+Description=Ansible Bootstrap
+After=multi-user.target
+
+[Service]
+Type=oneshot
+StandardOutput=journal+console
+StandardError=journal+console
+WorkingDirectory=/ansible
+ExecStart=/usr/local/bin/start-ansible
+
+# Custom target to run after default services.
+# See custom.target and https://www.mauras.ch/systemd-run-it-last.html
+[Install]
+WantedBy=custom.target
