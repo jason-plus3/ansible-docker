@@ -8,6 +8,10 @@ ENV ANSIBLE_HOST_KEY_CHECKING false
 ENV ANSIBLE_RETRY_FILES_ENABLED false
 ENV ANSIBLE_SSH_PIPELINING True
 
+
+ENV PYPI_URL="https://pypi.org/simple" \
+    GET_PIP_URL="https://bootstrap.pypa.io/2.6/get-pip.py"
+
 # Not sure if needed
 #ENV ANSIBLE_ROLES_PATH /ansible/playbooks/roles
 #ENV ANSIBLE_LIBRARY /ansible/library
@@ -32,8 +36,14 @@ rm -f /lib/systemd/system/anaconda.target.wants/*;
 RUN yum makecache fast \
  && yum -y install deltarpm epel-release initscripts \
  && yum -y update \
- && yum -y install ansible sudo which  \
+ && yum -y install ansible sudo which gcc python-devl libffi-devel openssl-devel unzip \
  && yum clean all
+
+# Add watchmaker
+RUN curl --silent --show-error --retry 5 -L ${GET_PIP_URL} | python - --index-url="$PYPI_URL" 'wheel<0.30.0;python_version<"2.7"' 'wheel;python_version>="2.7"' ;\
+    pip install --index-url="$PYPI_URL" --upgrade 'pip<10' 'setuptools<37;python_version<"2.7"' 'setuptools;python_version>="2.7"' \
+        pyopenssl ndg-httpsclient pyasn1 'cryptography<2.2;python_version<"2.7"' 'cryptography;python_version>="2.7"' boto3 cffi watchmaker
+
 
 # Add systemd service for ansible that runs after all of the normal "multi-user.target" services
 ADD start-ansible /usr/local/bin

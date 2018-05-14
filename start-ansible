@@ -9,6 +9,17 @@ for e in $(tr "\000" "\n" < /proc/1/environ); do
 done
 
 
+#!/bin/bash
+
+
+pip install --index-url="$PYPI_URL" --upgrade watchmaker
+
+WATCHMAKER_ARGS=${WATCHMAKER_ARGS:---env dev}
+
+# need to figure out the right watchmaker invocation for docker
+# watchmaker --log-level debug --log-dir /var/log/watchmaker --no-reboot $WATCHMAKER_ARGS 
+
+
 if [ -z ${PLAYBOOK+x} ] ; then
     PLAYBOOK="${PLAYBOOK_DIR}/*playbook.yml"
 fi
